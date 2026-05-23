@@ -24,6 +24,10 @@ public class CategoryService {
         if (category.getName() == null || category.getName().isBlank()) {
             throw new GenericException(GenericExceptionKey.CATEGORY_NAME_IS_REQUIRED);
         }
+
+        if (categoryRepository.existsByNameIgnoreCase(category.getName())) {
+            throw new GenericException(GenericExceptionKey.CATEGORY_NAME_ALREADY_EXISTS);
+        }
     }
 }
 
