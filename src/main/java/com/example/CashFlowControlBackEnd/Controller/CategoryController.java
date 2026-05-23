@@ -25,4 +25,8 @@ public class CategoryController {
         return categoryService.update(id, category);
     }
 
+    @DeleteMapping("/delete/{id}")
+    public void delete(@PathVariable Long id) throws GenericException {
+        categoryService.delete(id);
+    }
 }
