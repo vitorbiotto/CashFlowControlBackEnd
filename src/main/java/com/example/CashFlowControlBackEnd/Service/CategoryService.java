@@ -30,6 +30,21 @@ public class CategoryService {
         return categoryRepository.save(newCategory);
     }
 
+    public void delete(Long id) throws GenericException {
+        validateIfIdExists(id);
+        categoryRepository.deleteById(id);
+    }
+
+    private void validateIfIdExists(Long id) throws GenericException {
+        if (id == null) {
+            throw new GenericException(GenericExceptionKey.CATEGORY_ID_IS_REQUIRED);
+        }
+
+        if (!categoryRepository.existsById(id)) {
+            throw new GenericException(GenericExceptionKey.CATEGORY_ID_NOT_FOUND);
+        }
+    }
+
     private void validateCategoryName(String name, Long categoryId) throws GenericException {
         if (name == null || name.isBlank()) {
             throw new GenericException(GenericExceptionKey.CATEGORY_NAME_IS_REQUIRED);
