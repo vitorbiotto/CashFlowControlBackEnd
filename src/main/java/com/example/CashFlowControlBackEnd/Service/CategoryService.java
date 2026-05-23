@@ -16,16 +16,30 @@ public class CategoryService {
     }
 
     public Category save(Category category) throws GenericException {
-        validateFields(category);
+        validateCategoryName(category.getName(), null);
         return categoryRepository.save(category);
     }
 
-    private void validateFields(Category category) throws GenericException {
-        if (category.getName() == null || category.getName().isBlank()) {
+    public Category update(Long categoryId, Category category) throws GenericException {
+        Category newCategory = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new GenericException(GenericExceptionKey.CATEGORY_NOT_FOUND));
+
+        validateCategoryName(category.getName(), categoryId);
+        newCategory.setName(category.getName());
+
+        return categoryRepository.save(newCategory);
+    }
+
+    private void validateCategoryName(String name, Long categoryId) throws GenericException {
+        if (name == null || name.isBlank()) {
             throw new GenericException(GenericExceptionKey.CATEGORY_NAME_IS_REQUIRED);
         }
 
-        if (categoryRepository.existsByNameIgnoreCase(category.getName())) {
+        boolean duplicated = categoryId == null
+                ? categoryRepository.existsByNameIgnoreCase(name)
+                : categoryRepository.existsByNameIgnoreCaseAndIdNot(name, categoryId);
+
+        if (duplicated) {
             throw new GenericException(GenericExceptionKey.CATEGORY_NAME_ALREADY_EXISTS);
         }
     }
