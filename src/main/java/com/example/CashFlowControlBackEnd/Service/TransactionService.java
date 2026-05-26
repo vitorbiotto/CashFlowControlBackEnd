@@ -35,8 +35,46 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
+    public Transaction update(Long transactionId, TransactionRequestDto dto) throws GenericException {
+        Transaction newTransaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new GenericException(GenericExceptionKey.TRANSACTION_NOT_FOUND));
+
+        if (dto.getDescription() != null) {
+            newTransaction.setDescription(dto.getDescription());
+        }
+
+        newTransaction.setAmount(dto.getAmount());
+        newTransaction.setDate(dto.getDate());
+        newTransaction.setType(dto.getType());
+
+        if (dto.getCategoryId() != null) {
+            Category category = new Category();
+            category.setId(dto.getCategoryId());
+            newTransaction.setCategory(category);
+        } else {
+            throw new GenericException(GenericExceptionKey.CATEGORY_ID_IS_REQUIRED);
+        }
+
+        return transactionRepository.save(newTransaction);
+    }
+
+    public void delete(Long id) throws GenericException {
+        validateIfIdExists(id);
+        transactionRepository.deleteById(id);
+    }
+
+    private void validateIfIdExists(Long id) throws GenericException {
+        if (id == null) {
+            throw new GenericException(GenericExceptionKey.TRANSACTION_ID_IS_REQUIRED);
+        }
+
+        if (!transactionRepository.existsById(id)) {
+            throw new GenericException(GenericExceptionKey.TRANSACTION_ID_NOT_FOUND);
+        }
+    }
+
     private void validateFields(TransactionRequestDto dto) throws GenericException {
-        if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) == 0) {
+        if (dto.getAmount() == null || dto.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new GenericException(GenericExceptionKey.INVALID_TRANSACTION_AMOUNT);
         }
 
