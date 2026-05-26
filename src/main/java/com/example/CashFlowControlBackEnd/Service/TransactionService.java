@@ -1,7 +1,9 @@
 package com.example.CashFlowControlBackEnd.Service;
 
 import com.example.CashFlowControlBackEnd.Dto.TransactionRequestDto;
+import com.example.CashFlowControlBackEnd.Dto.TransactionSummaryDto;
 import com.example.CashFlowControlBackEnd.Entity.Category;
+import com.example.CashFlowControlBackEnd.Entity.Enums.TransactionType;
 import com.example.CashFlowControlBackEnd.Entity.Transaction;
 import com.example.CashFlowControlBackEnd.Exceptions.Enums.GenericExceptionKey;
 import com.example.CashFlowControlBackEnd.Exceptions.GenericException;
@@ -71,6 +73,15 @@ public class TransactionService {
         if (!transactionRepository.existsById(id)) {
             throw new GenericException(GenericExceptionKey.TRANSACTION_ID_NOT_FOUND);
         }
+    }
+
+    public TransactionSummaryDto sumByType(TransactionType type) throws GenericException {
+        if (type == null) {
+            throw new GenericException(GenericExceptionKey.TRANSACTION_TYPE_IS_REQUIRED);
+        }
+
+        BigDecimal totalAmount = transactionRepository.sumByType(type);
+        return new TransactionSummaryDto(type, totalAmount);
     }
 
     private void validateFields(TransactionRequestDto dto) throws GenericException {
